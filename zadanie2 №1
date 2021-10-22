@@ -1,0 +1,11 @@
+#include <iostream>
+#include <ctime>
+#include <stdlib.h>
+
+int main(void)
+{
+    setlocale(LC_ALL, "Russian");
+    srand(time(0));
+    std::cout << rand()%6+1 << "  ";
+    std::cout << rand()%6+1 <<  std::endl;
+}
