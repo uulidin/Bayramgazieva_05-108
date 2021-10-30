@@ -1,0 +1,92 @@
+
+#include <iostream>
+#include <stdio.h>
+#include <random>
+
+void print_array(int a[], int n) {
+    for (int i = 0; i < n; i++) {
+        std::cout << a[i] << " ";
+    }
+    delete a;
+    return;
+}
+void one() {
+    int inic, razn, first;
+    std::cout << "Введите: размер массива, начальное значение и разность ";
+    std::cin >> inic >> first >> razn;
+    int* a = new int[inic];
+    for (int i = 0; i < inic; i++) {
+        a[i] = 1;
+    }
+    for (int i = 0; i < inic; i++) {
+        a[i] = first + i * razn;
+    }
+    print_array(a, inic);
+    return;
+}
+
+void two() {
+    int inic;
+    std::random_device rd;
+    std::mt19937 mersenne(rd());
+    //std::cout << "Введите: размер массива, начальное значение и разность ";
+    std::cin >> inic;
+    int* a = new int[inic];
+    for (int i = 0; i < inic; i++) {
+        a[i] = i + 1;
+    }
+    int dop = 0;
+    int count = 0;
+    for (int i = 0; i < inic; i++) {
+        dop = mersenne() % inic;
+        count = a[dop];
+
+        a[dop] = a[i];
+        //std::cout << a[dop] << " " << dop << "   " << a[i] << " " << i<< std::endl;
+        a[i] = count;
+
+    }
+    print_array(a, inic);
+    return;
+}
+
+void three() {
+    int inic;
+    setlocale(LC_ALL, "Russian");
+    std::random_device rd;
+    std::mt19937 mersenne(rd());
+    //std::cout << "Введите: размер массива, начальное значение и разность ";
+    std::cin >> inic;
+    int* a = new int[inic];
+    for (int i = 0; i < inic; i++) {
+        a[i] = i + 1;
+    }
+    int dop = 0;
+    int count = 0;
+    for (int i = 0; i < inic; i++) {
+        dop = mersenne() % 1001 + 1000;
+        a[i] = dop;
+        if (a[i] / 10 % 2 == 0) {
+            count++;
+        }
+    }
+    std::cout << std::endl << count;
+    return;
+}
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    std::cout << "Какую задачу вы хотите проверить?";
+    int ex;
+    std::cin >> ex;
+    if (ex == 1) {
+        one();
+    }
+    else if (ex == 2) {
+        two();
+    }
+    else {
+        three();
+    }
+}
