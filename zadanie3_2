@@ -1,0 +1,24 @@
+#include <iostream>
+
+int recursion(int n) {
+    int boom = 0;
+    int static i = -1;
+    if (n == 0) {
+        return 0;
+    }
+    else {
+        ++i;
+        boom = (n % 10) * pow(2, i) + recursion(n / 10);
+        
+    }
+    return boom;
+}
+
+
+int main()
+{   
+    int n;
+    std::cout << "Choose your number: ";
+    std::cin >> n;
+    std::cout  << recursion(n);
+}
