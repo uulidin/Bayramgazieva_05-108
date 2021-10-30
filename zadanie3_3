@@ -1,0 +1,45 @@
+#include <iostream>
+
+int simples(int n) {
+    int flag = 0;
+    while (flag == 0) {
+        n++;
+        int counter = 0;
+        for (int j = 2; j < int(pow(n, 0.5)); j++) {
+            if (n % j == 0) {
+                counter++;
+                break;
+            }
+        }
+        if (counter == 0) {
+            flag = 1;
+        }
+    }
+    //std::cout << "New delitel: " << n << std::endl;
+    return n;
+}
+
+void co_multiples(int n) {
+    int static i = 2;
+    if (n != 1) {
+        if (n % i == 0) {
+            std::cout << i << " ";
+            co_multiples(n / i);
+        }
+        else {
+            i = simples(i);
+            co_multiples(n);
+        }
+    }
+    else {
+        return;
+    }
+}
+
+int main()
+{   
+    int n;
+    std::cout << "Choose your number: ";
+    std::cin >> n;
+    co_multiples(n);  
+}
