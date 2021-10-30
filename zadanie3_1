@@ -1,0 +1,13 @@
+#include <iostream>
+void list(int n) {
+    if (n / 10 != 0) {
+        list(n / 10);
+    }
+    std::cout << n % 10  << " ";
+}
+int main()
+{
+    int n;
+    std::cin >> n;
+    list(n);
+}
