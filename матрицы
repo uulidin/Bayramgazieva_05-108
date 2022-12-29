@@ -1,0 +1,433 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace matrix
+{
+    internal class Matrix
+    {
+        protected int n, m;
+        protected double[,] matr;
+        
+        public int N
+        { 
+            get { return n; } 
+            set { n = value; }
+        }
+        public int M
+        {
+            get { return m; }
+            set { m = value; }
+        }
+        public double[,] MATR
+        {
+            get { return matr; }
+            set { matr = value; }
+        }
+        
+        public Matrix(int n,int m, char c = 'c')// ввод вручную
+        {   /*
+            int n = Convert.ToInt32(Console.ReadLine());
+            int m = Convert.ToInt32(Console.ReadLine());
+            */
+            double[,] matr = new double[n, m];
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < m; j++)
+                    matr[i, j] = Convert.ToDouble(Console.ReadLine());
+            this.n = n;
+            this.m = m;
+            this.matr = matr;
+        }
+        public Matrix(int n, int m)// Рандом
+        {
+            Random r = new Random();
+            this.n = n;
+            this.m = m;
+            double[,] matr = new double[n, m];
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < m; j++)
+                    matr[i, j] = r.NextInt64(10, 99) / 10.0;
+            this.matr = matr;
+        }
+        public Matrix(int n, int m, bool flag = true)// нулевой
+        {
+            this.n = n;
+            this.m = m;
+            double[,] matr = new double[n, m];
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < m; j++)
+                    matr[i, j] = 0.0;
+            this.matr = matr;
+        }
+        public Matrix(string filename) //ввод с файла
+        {
+            string[] f = File.ReadAllLines(filename);
+            this.n = f.Length;
+            this.m = f[0].Split().Length;
+            double[,] matrix = new double[n, m];
+            for (int i = 0; i < n; i++)
+            {
+                string[] temp = f[i].Split();
+                for (int j = 0; j < m; j++)
+                {
+                    matrix[i, j] = Convert.ToInt32((temp[j]));
+                }
+            }
+            this.matr = matrix;
+        }
+        public void show()
+        {
+            for (int i = 0; i < this.n; i++)
+            {
+                for (int j = 0; j < this.m; j++)
+                    Console.Write("{0} ", this.matr[i, j]);
+                Console.WriteLine();
+            }
+            Console.WriteLine();
+        }
+        public static Matrix operator +(Matrix m1, Matrix m2)
+        {
+            if (m1.n != m2.n || m1.m != m2.m)
+                throw new Exception("Размерности не совпадают!");
+            Matrix m3 = new Matrix(m1.n, m1.m, true);
+            for (int i = 0; i < m1.n; i++)
+                for (int j = 0; j < m1.m; j++)
+                    m3.matr[i, j] = Math.Round(m1.matr[i, j] + m2.matr[i, j], 2);
+            return m3;
+        }
+        public static Matrix operator -(Matrix m1, Matrix m2)
+        {
+            if (m1.n != m2.n || m1.m != m2.m)
+                throw new Exception("Размерности не совпадают!");
+            Matrix m3 = new Matrix(m1.n, m1.m, true);
+            for (int i = 0; i < m1.n; i++)
+                for (int j = 0; j < m1.m; j++)
+                    m3.matr[i, j] = Math.Round(m1.matr[i, j] - m2.matr[i, j], 2);
+            return m3;
+        }
+        public static Matrix operator *(Matrix m1, double k)
+        {
+            Matrix m3 = new Matrix(m1.n, m1.m, true);
+            for (int i = 0; i < m1.n; i++)
+                for (int j = 0; j < m1.m; j++)
+                    m3.matr[i, j] = Math.Round(m1.matr[i, j] * k, 2);
+            return m3;
+        }
+        public static Matrix operator *(double k, Matrix m1)
+        {
+            Matrix m3 = new Matrix(m1.n, m1.m, true);
+            m3.matr = (m1 * k).matr;
+            return m3;
+        }
+        public static Matrix operator /(Matrix m1, double k)
+        {
+            Matrix m3 = new Matrix(m1.n, m1.m, true);
+            for (int i = 0; i < m1.n; i++)
+                for (int j = 0; j < m1.m; j++)
+                    m3.matr[i, j] = Math.Round(m1.matr[i, j] / k, 2);
+            return m3;
+        }
+
+        public static Matrix operator *(Matrix m1, Matrix m2)
+        {
+            if (m1.m != m2.n || m1.n != m2.m)
+                throw new Exception("Размерности не совпадают!");
+            Matrix m3 = new Matrix(m1.n, m1.m, true);
+            for (int i = 0; i < m1.m; i++)
+            {
+                for (int j = 0; j < m1.n; j++)
+                {
+                    for (int k = 0; k < m1.n; k++)
+                    {
+                        m3.matr[i, j] += Math.Round(m1.matr[i, k] * m2.matr[k, j], 2);
+                    }
+                    m3.matr[i, j] = Math.Round(m3.matr[i, j], 2);
+                }
+            }
+            return m3;
+        }
+
+        public Matrix transpose()
+        {
+            Matrix m2 = new Matrix(m, n, true);
+            for (int i = 0; i < m; i++)
+                for (int j = 0; j < n; j++)
+                {
+                    m2.matr[i, j] = matr[j, i];
+                }
+            return m2;
+        }
+        public double? this[int i, int j]
+        {
+            get
+            {
+                if (i <= n && j <= m && i >= 0 && j >= 0)
+                    return matr[i, j];
+                return null;
+            }
+            set
+            {
+                if (value != null)
+                {
+                    if (i <= n && j <= m && i >= 0 && j >= 0)
+                        matr[i, j] = (double)value;
+                }
+            }
+        }
+        public Matrix Gauss()
+        {
+            Matrix gauss(double[,] a, int n, int m)
+            {
+                int i, j, k;
+                double d;
+                if (a[0, 0] == 0)
+                {
+                    for (int t = 0; t < n; t++)
+                    {
+                        if (a[t, 0] != 0)
+                        {
+                            for (int q1 = 0; q1 < m; q1++)
+                            {
+                                double t1 = a[0, q1];
+                                a[0, q1] = a[t, q1];
+                                a[t, q1] = t1;
+                            }
+                        }
+                    }
+                }
+                for (int i1 = 0; i1 < n; i1++)
+                {
+                    int x = 0;
+                    for (int j1 = 0; j1 < m; j1++)
+                    {
+                        if (a[i1, j1] == 0) x++;
+                    }
+                    if (x == m)
+                    {
+                        int tr = i1;
+                        while (tr != n - 1)
+                        {
+                            for (int q1 = 0; q1 < m; q1++)
+                            {
+                                double t = a[tr, q1];
+                                a[tr, q1] = a[tr + 1, q1];
+                                a[tr + 1, q1] = t;
+                            }
+                            tr++;
+                        }
+                    }
+                }
+                for (k = 0; k < Math.Min(n, m); k++) // прямой ход
+                {
+                    for (j = k + 1; j < n; j++)
+                    {
+
+                        d = a[j, k] / a[k, k]; // формула (1)
+
+                        for (i = k; i < m; i++)
+
+                        {
+                            a[j, i] = Math.Round(a[j, i] - d * a[k, i], 2); // формула (2)
+                        }
+                    }
+
+                }
+                int w = 0;
+                for (int i1 = 0; i1 < n; i1++)
+                {
+                    int x = 0;
+                    for (int j1 = 0; j1 < m; j1++)
+                    {
+                        if (a[i1, j1] == 0) x++;
+                    }
+                    if (x == m) w++;
+                }
+
+                Matrix nm = new Matrix(n - w, m);
+                for (int i2 = 0; i2 < n - w; i2++)
+                {
+                    for (int j2 = 0; j2 < m; j2++)
+                    {
+                        nm.matr[i2, j2] = a[i2, j2];
+                    }
+                }
+                return nm;
+            }
+            return gauss(matr, n, m);
+        }
+    }
+
+    internal class SquareMatrix : Matrix
+    {
+        public SquareMatrix(int n, char c = 'c') : base(n, n, c) // ввод вручную
+        {
+        }
+        public SquareMatrix(int n) : base(n, n)// Рандом
+        {
+        }
+        public SquareMatrix(int n, bool flag = true) : base(n, n, flag)// нулевой
+        {
+        }
+        public new SquareMatrix transpose()
+        {
+            SquareMatrix m2 = new SquareMatrix(n, true);
+            for (int i = 0; i < m; i++)
+                for (int j = 0; j < n; j++)
+                {
+                    m2.matr[i, j] = matr[j, i];
+                }
+            return m2;
+        }
+        public double det()
+        {
+            void GetMatr(double[,] mas, double[,] p, int i, int j, int m)
+            {
+                int ki, kj, di, dj;
+                di = 0;
+                for (ki = 0; ki < m - 1; ki++)
+                { // проверка индекса строки
+                    if (ki == i) di = 1;
+                    dj = 0;
+                    for (kj = 0; kj < m - 1; kj++)
+                    { // проверка индекса столбца
+                        if (kj == j) dj = 1;
+                        p[ki, kj] = mas[ki + di, kj + dj];
+                    }
+                }
+
+            }
+            // Рекурсивное вычисление определителя
+            double Determinant(double[,] mas, int m)
+            {
+                int i, j, k, n;
+                double d;
+                double[,] p = new double[m, m];
+                j = 0; d = 0;
+                k = 1; //(-1) в степени i
+                n = m - 1;
+                if (m < 1) Console.WriteLine("error");
+                if (m == 1)
+                {
+                    d = mas[0, 0];
+                    return (d);
+                }
+                if (m == 2)
+                {
+                    d = mas[0, 0] * mas[1, 1] - (mas[1, 0] * mas[0, 1]);
+                    return (d);
+                }
+                if (m > 2)
+                {
+                    for (i = 0; i < m; i++)
+                    {
+                        GetMatr(mas, p, i, 0, m);
+                        d = d + k * mas[i, 0] * Determinant(p, n);
+                        k = -k;
+                    }
+                }
+                return (d);
+            }
+            return Math.Round(Determinant(matr, m),2);
+        }
+    }
+    class Invertable_Matrix : SquareMatrix
+    {
+        public Invertable_Matrix(int n) : base(n)
+        {
+            if (det() == 0) throw new Exception("определитель равен 0");
+        }
+
+        public Invertable_Matrix(int n, bool flag = true) : base(n, true)
+        {
+            if (det() == 0) throw new Exception("определитель равен 0");
+        }
+
+        public Invertable_Matrix(int n, char r = 'r') : base(n, r)
+        {
+            if (det() == 0) throw new Exception("определитель равен 0");
+        }
+
+        public Invertable_Matrix inverse_matrix()
+        {
+            //функция вычеркивания строки и столбца
+            void Get_matr(double[,] matr, int n, double[,] temp_matr, int indRow, int indCol)
+            {
+                int ki = 0;
+                for (int i = 0; i < n; i++)
+                {
+                    if (i != indRow)
+                    {
+                        for (int j = 0, kj = 0; j < n; j++)
+                        {
+                            if (j != indCol)
+                            {
+                                temp_matr[ki, kj] = matr[i, j];
+                                kj++;
+                            }
+                        }
+                        ki++;
+                    }
+                }
+            }
+
+            double Det(double[,] matr, int n)
+            {
+                double temp = 0;   //временная переменная для хранения определителя
+                int k = 1;      //степень
+                if (n < 1)
+                {
+                    return 0;
+                }
+                else if (n == 1)
+                    temp = matr[0, 0];
+                else if (n == 2)
+                    temp = matr[0, 0] * matr[1, 1] - matr[1, 0] * matr[0, 1];
+                else
+                {
+                    for (int i = 0; i < n; i++)
+                    {
+                        int m = n - 1;
+                        double[,] temp_matr = new double[m, m];
+                        Get_matr(matr, n, temp_matr, 0, i);
+                        temp = temp + k * matr[0, i] * Det(temp_matr, m);
+                        k = -k;
+                    }
+                }
+                return Math.Round(temp, 2);
+            }
+
+            double[,] inverse(double[,] matr, int n)
+            {
+                double[,] obr_matr = new double[n, n];
+                for (int i = 0; i < n; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        int m = n - 1;
+                        double[,] temp_matr = new double[m, m];
+                        Get_matr(matr, n, temp_matr, i, j);
+                        obr_matr[i, j] = Math.Pow(-1.0, i + j + 2) * Det(temp_matr, m);
+                    }
+                }
+                return obr_matr;
+            }
+            Invertable_Matrix nim = new Invertable_Matrix(n);
+            double[,] tmp = inverse(matr, n);
+            double d = det();
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    nim.matr[i, j] = Math.Round(tmp[j, i] / d, 2);
+                }
+            }
+            return nim;
+        }
+    }
+}
+
+
