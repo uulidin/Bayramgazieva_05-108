@@ -1,0 +1,473 @@
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Numerics;
+using System.Runtime.Intrinsics;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace practice_15._09._22
+{
+    internal class Points
+    {
+        protected double x, y, z;
+        public Points()
+        {
+        }
+        public Points(double x, double y, double z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+
+        }
+        public double X
+        {
+            get { return x; }
+            set { x = value; }
+        }
+        public double Y
+        {
+            get => y;
+            set { y = value; }
+        }
+        public double Z
+        {
+            get => z;
+            set { z = value; }
+        }
+        static protected double Distance(Points A, Points B)
+        {
+            return Math.Sqrt(((A.x - B.x) * (A.x - B.x) +
+                               (A.y - B.y) * (A.y - B.y) +
+                               (A.z - B.z) * (A.z - B.z)));
+        }
+        static public double Distance_to_zero(Points A)
+        {
+            Points zero = new Points();
+            return Distance(A, zero);
+        }
+        static public Points Vector(Points A, Points B)
+        {
+            return new Points(-A.x + B.x, -A.y + B.y, -A.z + B.z);
+        }
+        public static Points operator +(Points A, Points B)
+        {
+            return new Points(A.x + B.x, A.y + B.y, A.z + B.z);
+        }
+        public static Points operator -(Points A, Points B)
+        {
+            return new Points(A.x - B.x, A.y - B.y, A.z - B.z);
+        }
+        public static double dot_product(Points A, Points B)
+        {
+            return A.x * B.x + A.y * B.y + A.z * B.z;
+        }
+        protected static double find_angle(Points A, Points B)
+        {
+            if ((A.x / B.x == A.y / B.y) && (A.z / B.z == A.y / B.y))
+                return 0;
+            return Math.Acos(dot_product(A, B) / (Distance_to_zero(A) * Distance_to_zero(B)));
+        }
+        static public Points cross_product(Points A, Points B)
+        {
+            return new Points(A.y * B.z - A.z * B.y, -A.x * B.z + 
+                              A.z * B.x, A.x * B.y - A.y * B.x);
+        }
+        static public void plane_eq(Points A, Points B, Points C)
+        {
+            Points v1 = Points.Vector(A, B);
+            Points v2 = Points.Vector(A, C);
+            double a = v1.y * v2.z - v1.z * v2.y;
+            double b = v1.z * v2.x - v1.x * v2.z;
+            double z = v1.x * v2.y - v1.y * v2.x;
+            double d = A.x * (v1.z * v2.y - v1.y * v2.z) + A.y * (-(v1.z * v2.x) + v1.x * v2.z) + A.z * (v1.y * v2.x - v1.x * v2.y);
+            Console.WriteLine("({0})x + ({1})y + ({2})z + ({3}) = 0", a, b, z, d);
+        }
+        static protected bool check_plane_eq(Points A, Points B, Points C, Points D)
+        {
+            Points v1 = Points.Vector(A, B);
+            Points v2 = Points.Vector(A, C);
+            double a = v1.y * v2.z - v1.z * v2.y;
+            double b = v1.z * v2.x - v1.x * v2.z;
+            double z = v1.x * v2.y - v1.y * v2.x;
+            double d = A.x * (v1.z * v2.y - v1.y * v2.z) + 
+                   A.y * (-(v1.z * v2.x) + v1.x * v2.z) + 
+                   A.z * (v1.y * v2.x - v1.x * v2.y);
+            return (a * D.x + b * D.y + z * D.z + d) == 0;
+        }
+        static public void line_eq(Points A, Points B)
+        {
+            Points v = Points.Vector(A, B);
+            Console.WriteLine("(x - {0}) / {1} = (y - {2}) / {3} = (z - {4}) / {5}", A.x, v.x, A.y, v.y, A.z, v.z);
+        }
+        public override string ToString()
+        {
+            return $"({x}, {y}, {z})"; 
+        }
+        private static double try_del(double a, double b)
+        {
+            if (a == 0 && b == 0)
+                return 1234;
+            if (a == 0 || b == 0)
+                return 0;
+            return a/ b;
+             
+        }
+        static public bool is_collinear(Points A, Points B)
+        {
+            double n = 0;
+            if (try_del(A.x, B.x) != 1234)
+            {
+                n = try_del(A.x, B.x);
+                if ((((A.y * n) == B.y) && ((A.z * n) == B.z))
+                    || (((B.y * n) == A.y) && ((B.z * n) == A.z)))
+                    return true;
+                else
+                    return false;
+            }
+            else if (try_del(A.y, B.y) != 1234)
+            {
+                n = try_del(A.y, B.y);
+                if ((((A.x * n) == B.x) && ((A.z * n) == B.z))
+                    || (((B.x * n) == A.x) && ((B.z * n) == A.z)))
+                    return true;
+                else
+                    return false;
+            }
+            else if (try_del(A.z, B.z) != 1234)
+            {
+                n = try_del(A.z, B.z);
+                if ((((A.x * n) == B.x) && ((A.y * n) == B.y))
+                    || (((B.x * n) == A.x) && ((B.y * n) == A.y)))
+                    return true;
+                else
+                    return false;
+            }
+            else
+                return true;
+
+        }
+        protected double cos(Points A, Points B)
+        {
+            return dot_product(A, B) / (Distance_to_zero(A) * Distance_to_zero(B));
+        }
+    }
+
+    internal class Rectangle : Points
+    {
+        private Points a;
+        private Points b;
+        private Points c;
+        private Points? d;
+        public Rectangle(Points a, Points b, Points c) 
+        {
+            this.d = fourth_point(a, b, c);
+            if (d is null)
+            {
+                this.a = a;
+                this.b = a;
+                this.c = a;
+                this.d = a;
+                Console.WriteLine("Error");
+            }
+            else
+            {
+                this.a = a;
+                this.b = b;
+                this.c = c;
+            }
+        }
+        public Rectangle(Points a, Points b, Points c, Points d)
+        {
+            Points? f = fourth_point(a, b, c);
+            if (f is not null)
+            {
+                if (d.X == f.X && d.Y == f.Y && d.Z == f.Z)
+                {
+                    this.a = a;
+                    this.b = b;
+                    this.c = c;
+                    this.d = d;
+                }
+            }
+            else
+            {
+                this.a = a;
+                this.b = a;
+                this.c = a;
+                Console.WriteLine("Error");
+            }
+        }
+        
+        public Points A
+        {
+            get { return a; }
+            set { a = value; }
+        }
+        public Points B
+        {
+            get { return b; }
+            set { b = value; }
+        }
+        public Points C
+        {
+            get { return c; }
+            set { c = value; }
+        }
+        public Points D
+        {
+            get { return d; }
+            set { d = value; }
+        }
+        static protected Points? fourth_point(Points A, Points B, Points C)
+        {
+            Points AB = Vector(A, B);
+            Points AC = Vector(A, C);
+            Points BC = Vector(B, C);
+            Points BA = Vector(B, A);
+            Points CB = Vector(C, B);
+            Points CA = Vector(C, A);
+            if (dot_product(AB, AC) == 0)
+                return AB + AC + A;
+            else if (dot_product(BC, BA) == 0)
+                return BC + BA + B;
+            else if (dot_product(CB, CA) == 0)
+                return CB + CA + C;
+            else
+                return null;
+        }
+        public override string ToString()
+        {
+            return $"{a}, {b}, {c}, {d}";
+        }
+        public double perimetr()
+        {
+            Points AB = Vector(a, b);
+            Points AC = Vector(c, d);
+            Points BC = Vector(b, c);
+            Points BA = Vector(b, a);
+            Points CB = Vector(c, b);
+            Points CA = Vector(c, a);
+            if (dot_product(AB, AC) == 0)
+                return 2 * (Distance_to_zero(AB) + Distance_to_zero(AC));
+            else if (dot_product(BC, BA) == 0)
+                return 2 * (Distance_to_zero(BC) + Distance_to_zero(BA));
+            else if (dot_product(CB, CA) == 0)
+                return 2 * (Distance_to_zero(CB) + Distance_to_zero(CA));
+            else
+                return 0;
+        }
+        public double square()
+        {
+            Points AB = Vector(a, b);
+            Points AC = Vector(c, d);
+            Points BC = Vector(b, c);
+            Points BA = Vector(b, a);
+            Points CB = Vector(c, b);
+            Points CA = Vector(c, a);
+            if (dot_product(AB, AC) == 0)
+                return Distance_to_zero(AB) * Distance_to_zero(AC);
+            else if (dot_product(BC, BA) == 0)
+                return Distance_to_zero(BC) * Distance_to_zero(BA);
+            else if (dot_product(CB, CA) == 0)
+                return Distance_to_zero(CB) * Distance_to_zero(CA);
+            else
+                return 0;
+        }
+        public double diagonale()
+        {
+            Points AB = Vector(a, b);
+            Points AC = Vector(c, d);
+            Points BC = Vector(b, c);
+            Points BA = Vector(b, a);
+            Points CB = Vector(c, b);
+            Points CA = Vector(c, a);
+            if (dot_product(AB, AC) == 0)
+                return Math.Sqrt(Math.Pow(Distance_to_zero(AB),2) + Math.Pow(Distance_to_zero(AC),2));
+            else if (dot_product(BC, BA) == 0)
+                return Math.Sqrt(Math.Pow(Distance_to_zero(BC), 2) + Math.Pow(Distance_to_zero(BA), 2));
+            else if (dot_product(CB, CA) == 0)
+                return Math.Sqrt(Math.Pow(Distance_to_zero(CB), 2) + Math.Pow(Distance_to_zero(CA), 2));
+            else
+                return 0;
+        }
+
+        /*
+        static public double perimetr(Points A, Points B, Points C)
+        {
+            Points AB = Points.Vector(A, B);
+            Points 
+        }
+       */
+    }
+    internal class Figures: Points
+    {
+        private bool error = false;
+        private Points a;
+        private Points b;
+        private Points c;
+        private Points d;
+        public Figures(Points a, Points b, Points c, Points d)
+        {
+            if (check_plane_eq(a, b, c, d))
+            {
+                this.a = a;
+                this.b = b;
+                this.c = c;
+                this.d = d;
+            }
+            else
+            {
+                this.a = new Points();
+                this.b = new Points();
+                this.c = new Points();
+                this.d = new Points();
+                error = true;
+                Console.WriteLine("Error");
+            }
+        }
+        public Points A
+        {
+            get { return a; }
+            set { a = value; }
+        }
+        public Points B
+        {
+            get { return b; }
+            set { b = value; }
+        }
+        public Points C
+        {
+            get { return c; }
+            set { c = value; }
+        }
+        public Points D
+        {
+            get { return d; }
+            set { d = value; }
+        }
+        public double perimetr()
+        {
+            double a1 = Distance(a, b);
+            double a2 = Distance(b, c);
+            double a3 = Distance(c, d);
+            double a4 = Distance(d, a);
+            return a1 + a2 + a3 + a4;
+        }
+        public void check_plane()
+        {
+            if (check_plane_eq(a, b, c, d))
+                Console.WriteLine("Точки не лежат в одной плоскости");
+            else
+                Console.WriteLine("Точки лежат в одной плоскости");
+        }
+        public string which_figure()
+        {
+            if (error)
+                return "Error";
+            Points AB = Vector(a, b);
+            Points BC = Vector(b, c);
+            Points CD = Vector(c, d);
+            Points DA = Vector(d, a);
+            if(is_collinear(AB,CD) && !is_collinear(BC,CD))
+            {
+                return "Трапеция";
+            }
+            if(Distance_to_zero(AB) == Distance_to_zero(BC) &&
+               Distance_to_zero(BC) == Distance_to_zero(CD) &&
+               Distance_to_zero(CD) == Distance_to_zero(DA) &&
+               Distance_to_zero(DA) == Distance_to_zero(AB))
+            {
+                if (dot_product(AB, CD) == 0)
+                    return "Квадрат";
+                if (is_collinear(AB, CD))
+                    return "Ромб";
+            }
+            if(is_collinear(AB,CD) && is_collinear(BC,DA))
+            {
+                if (dot_product(AB, BC) == 0)
+                    return "Прямоугольник";
+                else
+                    return "Параллелограмм";
+            }
+            return "Четырёхугольник общего вида";
+        }
+        public bool is_convex()
+        {
+            if (error)
+                Console.WriteLine("Error");
+            Points AB = Vector(A, B);
+            Points BC = Vector(B, C);
+            Points CD = Vector(C, D);
+            Points DA = Vector(D, A);
+            Points ABBC = cross_product(AB, BC);
+            Points BCCD = cross_product(BC, CD);
+            Points CDDA = cross_product(CD, DA);
+            Points DAAB = cross_product(DA, AB);
+            if (Math.Sign(ABBC.X) == Math.Sign(BCCD.X) &&
+               Math.Sign(BCCD.X) == Math.Sign(CDDA.X) &&
+               Math.Sign(CDDA.X) == Math.Sign(DAAB.X) &&
+               Math.Sign(ABBC.Y) == Math.Sign(BCCD.Y) &&
+               Math.Sign(BCCD.Y) == Math.Sign(CDDA.Y) &&
+               Math.Sign(CDDA.Y) == Math.Sign(DAAB.Y) &&
+               Math.Sign(ABBC.Z) == Math.Sign(BCCD.Z) &&
+               Math.Sign(BCCD.Z) == Math.Sign(CDDA.Z) &&
+               Math.Sign(CDDA.Z) == Math.Sign(DAAB.Z) 
+               )
+                return true;
+            else
+                return false;
+        }
+        public double diagonale1()
+        {
+            return Distance_to_zero(Vector(A, C));
+        }
+        public double diagonale2()
+        {
+            return Distance_to_zero(Vector(B, D));
+        }
+        private int wrong_point()
+        {
+            Points AB = Vector(A, B);
+            Points BC = Vector(B, C);
+            Points CD = Vector(C, D);
+            Points DA = Vector(D, A);
+            Points ABBC = cross_product(AB, BC);
+            Points BCCD = cross_product(BC, CD);
+            Points CDDA = cross_product(CD, DA);
+            Points DAAB = cross_product(DA, AB);
+
+            if (cos(ABBC, BCCD) * cos(ABBC, CDDA) * cos(ABBC, DAAB) > 0)
+            {
+                return -1;
+            }
+            if (cos(ABBC, BCCD) == cos(ABBC, CDDA))
+            {
+                return 1;
+            }
+            if (cos(ABBC, BCCD) == -1)
+            {
+                return 2;
+            }
+            if (cos(ABBC, CDDA) == -1)
+            {
+                return 3;
+            }
+            return 0;
+        }
+        public double area()
+        {
+            if (error)
+                return 0;
+            if (is_convex())
+                return Math.Sin(find_angle(Vector(A, C), Vector(B, D))) * 0.5 *
+                    diagonale1() * diagonale2();
+            else
+                return 0;
+        }
+    }
+}
