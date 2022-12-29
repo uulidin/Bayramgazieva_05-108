@@ -1,0 +1,130 @@
+// See https://aka.ms/new-console-template for more information
+using practice_15._09._22;
+using System;
+using System.Numerics;
+/*
+Complex z1 = new Complex(1,1);
+Complex z2 = new Complex(1,1);
+Complex z3 = new Complex();
+Complex z4 = new Complex();
+
+z3 = Complex.add(z1, z2);
+Console.WriteLine(z3.re);
+z3.showAlg();
+z1.showTrig();
+*/
+Console.WriteLine();
+Points d = new Points(3,4,0);
+Console.WriteLine(Points.Distance_to_zero(d));
+Console.WriteLine();
+Console.WriteLine();
+Points A = new Points(1, 1, 1);
+Points B = new Points(2, 2, 2);
+Points C = new Points(1, 2, 3);
+Points D = A+C;
+Console.WriteLine("({0}, {1}, {2})",D.X,D.Y,D.Z);
+Points F = new Points(-1, 0, 1);
+Console.WriteLine(Points.dot_product(A, B));
+//Console.WriteLine(Points.find_angle(A, B));
+Points G = Points.Vector(A, B);
+Console.WriteLine("({0}, {1}, {2})", G.X, G.Y, G.Z);
+Points H = Points.cross_product(A, C);
+Console.WriteLine("({0}, {1}, {2})", H.X, H.Y, H.Z);
+Points.plane_eq(A, B, C);
+Points.line_eq(A, B);
+Points a1 = new Points(1, 1, 0);
+Points a2 = new Points(3, 4, 0);
+Points a3 = new Points(3, 2, 1);
+Points b1 = new Points(3, 2, 1);
+Points b2 = new Points(1, 2, 0);
+Points b3 = new Points(0, 2, 2);
+Points b4 = new Points(2, 2, 3);
+Points vec1 = new Points(2, 0, 1);
+Points vec2 = new Points(2, 0, 1);
+Console.WriteLine(A);
+Rectangle R = new Rectangle(b1, b2, b3);
+Console.WriteLine(R);
+Console.WriteLine(R.square());
+Console.WriteLine(R.perimetr());
+Console.WriteLine(R.diagonale());
+Rectangle R1 = new Rectangle(b1, b2, b3);
+Console.WriteLine(R1);
+Figures Fig = new Figures(b1, b2, b3, b4);
+Console.WriteLine(Fig.which_figure());
+if (Fig.is_convex())
+    Console.WriteLine("Выпуклый");
+else
+    Console.WriteLine("Не выпуклый");
+Points Q = new Points(1, 1, 2);
+Points E = new Points(3, 5, 1);
+Points J = new Points(5, 1, 1);
+Points K = new Points(3, 4, 1);
+Figures N = new Figures(Q,E,J,K);
+Console.WriteLine(N.which_figure());
+if (N.is_convex())
+    Console.WriteLine("Выпуклый");
+else
+    Console.WriteLine("Не выпуклый");
+//Console.WriteLine(N.check_plane());
+Console.WriteLine();
+Console.WriteLine("23".Split(':')[0]);
+/*
+class Complex
+{
+    private double re, im;
+    public Complex()
+    {
+    }
+    public Complex(double re, double im)
+    {
+        this.re = re;
+        this.im = im;
+    }
+    public double Re //автореалезуемое свойство
+                     //(совмещает в себе поле и свойство)
+    {
+        get;
+        set;
+    }
+    public double Im //свойство - элемент класса, с помощью
+                     //которого можно получить контролируемый доступ с
+                     //помощью аксессора( хотя бы один нужно объявить внутри св-ва)
+    {
+        get { return im; } //аксессор можно написать get => im
+        set { im = value; } //можно написать set => im = value
+    }
+    public double roim => im; //im только для чтения
+    public double Abs => Math.Sqrt(Re * Re + im * im);
+}
+    /* другой вариант
+     * public double Abs
+     * {
+     *  get {return Math.Sqrt(Re * Re + im * im);
+     * }
+     */
+/*
+    public Complex(Complex other)
+    {
+        Re = other.re;
+        Im = other.im;
+    }
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        if (Math.Abs(Re) > 10 * double.Epsilon ||
+            Math.Abs(Im) < 10 * double.Epsilon) //Epsilon - самое маленькое число > 0
+            sb.Append(Re);
+        if (Math.Abs(Im) > 10 * double.Epsilon)
+        {
+            sb.Append(Im > 0 ? " + " : " - ");
+            sb.Append(Math.Abs(Im));
+            sb.Append("i");
+        }
+        return sb.ToString();
+    }
+    public Complex Plus(Complex other)
+    {
+        return new Complex(Re + other.Re, Im + other.Im);
+    }
+}
+*/
