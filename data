@@ -1,5 +1,5 @@
 // See https://aka.ms/new-console-template for more information
-using practice_15._09._22;
+using Points;
 using System;
 using System.Numerics;
 /*
